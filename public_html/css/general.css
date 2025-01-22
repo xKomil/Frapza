@@ -1,0 +1,69 @@
+/* TUTAJ SĄ STYLE CSS KTÓRE BĘDĄ UŻYWANE JAKO KLASY
+ŻEBY SZYBCIEJ MIEĆ DO NICH DOSTĘP */
+
+/* PALETA KOLORÓW
+  #EEEEEE  main one
+  #393E46   second one
+  #FFD369   third one
+  #ffb300   navbar links
+  #222831   extra components
+
+
+  /* kolor skonwertowane na podstawie palety w opencolor
+  #ced4da
+  #868e96
+  
+  */
+/*----------------------------- DO UZYWANIA ----------------------------- */
+
+.container {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 3.2rem;
+}
+/* grid  */
+.grid {
+  display: grid;
+  row-gap: 9.6rem;
+  column-gap: 6.4rem;
+  margin-bottom: 9.6rem;
+}
+
+.grid:not(:last-child) {
+  margin-bottom: 9.6rem;
+}
+
+.grid--center-v {
+  align-items: center;
+}
+.grid--2-cols {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid--3-cols {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid--4-cols {
+  grid-template-columns: repeat(4, 1fr);
+}
+.grid--5-cols {
+  grid-template-columns: repeat(5, 1fr);
+}
+.text-center {
+  text-align: center;
+}
+.dispblock {
+  display: block;
+}
+.btn--form {
+  background-color: #393e46;
+  color: #eeeeee;
+  align-self: end;
+  padding: 1.2rem;
+}
+.btn--form:hover {
+  background-color: #1d2024;
+  color: #eeeeee;
+}
+.margin-bottom-smf{
+  margin-bottom: 2.6rem;
+}
