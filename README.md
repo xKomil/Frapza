@@ -168,7 +168,7 @@ W celu sprawnego działania aplikacji, niezbędne jest odpowiednie zaprojektowan
 - Zaimportuj plik SQL do bazy danych:
     - Otwórz zakładkę `Import` w phpMyAdmin.
     - Wybierz i zaimportuj plik `2025_kamil321.sql` znajdujący się w folderze projektu pobranego z GitHub.
-    - Kliknij `Wykonaj`.
+    - Kliknij `Importuj`.
 
 #### 3. Konfiguracja połączenia z bazą danych
 - Otwórz plik `db.php` w folderze projektu.
