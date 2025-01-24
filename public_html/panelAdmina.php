@@ -546,23 +546,62 @@ function loadUserForEdit(userId) {
     xhr.send();
 }
 
-// Funkcja do aktualizacji danych użytkownika
+// Funkcja do aktualizacji danych użytkownika z walidacją na froncie
 function updateUser() {
     const userId = document.getElementById("edit-user-id").value;
-    const imie = document.getElementById("edit-imie").value;
-    const nazwisko = document.getElementById("edit-nazwisko").value;
-    const email = document.getElementById("edit-email").value;
-    const numer = document.getElementById("edit-numer").value;
+    const imie = document.getElementById("edit-imie").value.trim();
+    const nazwisko = document.getElementById("edit-nazwisko").value.trim();
+    const email = document.getElementById("edit-email").value.trim();
+    const numer = document.getElementById("edit-numer").value.trim();
     const rola = document.getElementById("edit-rola").value;
 
+    // Walidacja danych na froncie
+    const errors = [];
+
+    // Walidacja imienia
+    if (!imie) {
+        errors.push("Proszę podać imię.");
+    }
+
+    // Walidacja nazwiska
+    if (!nazwisko) {
+        errors.push("Proszę podać nazwisko.");
+    }
+
+    // Walidacja adresu e-mail
+    if (!email) {
+        errors.push("Proszę podać adres email.");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push("Podano nieprawidłowy adres email.");
+    }
+
+    // Walidacja numeru telefonu
+    if (!numer) {
+        errors.push("Proszę podać numer telefonu.");
+    } else if (!/^[0-9]{9}$/.test(numer)) {
+        errors.push("Numer telefonu powinien składać się z dokładnie 9 cyfr.");
+    }
+
+    // Jeśli są błędy, wyświetl je i przerwij wysyłanie danych
+    if (errors.length > 0) {
+        alert(errors.join("\n"));
+        return;
+    }
+
+    // Wysłanie danych do backendu
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "backend/edit_user.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onload = function () {
         if (xhr.status === 200) {
-            alert("Dane użytkownika zostały zaktualizowane.");
-            loadUsers();
-            hideEditForm();
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                alert("Dane użytkownika zostały zaktualizowane.");
+                loadUsers(); // Funkcja do odświeżenia listy użytkowników
+                hideEditForm(); // Funkcja do ukrycia formularza edycji
+            } else {
+                alert(response.errors.join("\n") || "Wystąpił błąd podczas aktualizacji.");
+            }
         }
     };
     xhr.send(`id=${userId}&imie=${imie}&nazwisko=${nazwisko}&email=${email}&numer=${numer}&rola=${rola}`);
