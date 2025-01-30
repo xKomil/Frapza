@@ -36,7 +36,7 @@ if (mysqli_num_rows($result) > 0) {
             <td>{$row['Kategoria']}</td>
             <td>{$status}</td> <!-- Wyświetlamy status -->
             <td><button class='edit-menu button-24 edytuj' data-id='{$row['PotrawaId']}'>Edytuj</button> 
-                <button class='delete-menu button-24' data-id='{$row['PotrawaId']}'>Usuń</button></td>
+                 <button class='change-status button-24' data-id='{$row['PotrawaId']}' data-status='{$status}'>
         </tr>";
     }
 } else {
