@@ -82,13 +82,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <span class="form-rzecz-ikona material-symbols-outlined">lock</span>
                     <input type="password" name="password" placeholder="Wpisz hasło" required>
                 </div>
-                <div class="form-rzecz-inne">
-                    <div class="pole-zaznacz">
-                        <input type="checkbox" id="zapamietajMnieCheckbox">
-                        <label for="zapamietajMnieCheckbox">Zapamiętaj mnie</label>
-                    </div>
-                    <a href="#">Zapomniałem hasła!</a>
-                </div>
                 <button type="submit">Zaloguj się</button>
             </form>
             <div class="karta-logowania-footer">
