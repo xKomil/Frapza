@@ -1051,35 +1051,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //-------------------------- wyszukiwanie dania w menu ----------------------
 
-document.addEventListener("DOMContentLoaded", function () {
-    // Nasłuchiwacze na zmiany w polach wyszukiwania
-    document.getElementById("search-term-menu").addEventListener("input", searchDishes);
-    document.getElementById("search-criteria-menu").addEventListener("change", searchDishes);
-
-    // Funkcja do dynamicznego wyszukiwania potraw
-    function searchDishes() {
-        const searchTerm = document.getElementById("search-term-menu").value.trim();
-        const searchCriteria = document.getElementById("search-criteria-menu").value;
-
-        if (searchTerm === "") {
-            // Jeśli pole wyszukiwania jest puste, załaduj wszystkie potrawy
-            loadMenu();
-            return;
-        }
-
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", `backend/search_dishes.php?search-term=${encodeURIComponent(searchTerm)}&search-criteria=${encodeURIComponent(searchCriteria)}`, true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                document.getElementById("potrawy-lista").innerHTML = xhr.responseText;
-            }
-        };
-        xhr.send();
-    }
-});
-
-//-------------------------------- Ladowanie menu ------------------------------------
-// Funkcja do pobierania potraw z bazy danych i wstawiania ich do tabeli
+// Funkcja do ładowania menu
 function loadMenu() {
     fetch('backend/manage_menu.php')
         .then(response => response.json()) // Oczekujemy odpowiedzi w formacie JSON
@@ -1121,31 +1093,49 @@ function loadMenu() {
                 tableBody.innerHTML = '<tr><td colspan="8">Brak potraw w menu</td></tr>';
             }
 
-            // Dodajemy nasłuchiwacze na przyciski zmiany statusu
-            document.querySelectorAll('.change-status').forEach(button => {
-                button.addEventListener('click', function() {
-                    const dishId = this.getAttribute('data-id');
-                    const currentStatus = this.getAttribute('data-status');
-                    const newStatus = currentStatus === 'aktywna' ? 'nieaktywna' : 'aktywna'; // Zmieniamy status na przeciwny
-                    
-                    changeStatus(dishId, newStatus);
-                });
-            });
+            // Dodajemy nasłuchiwacze na przyciski zmiany statusu po załadowaniu całego menu
+            addChangeStatusListeners();
         })
         .catch(error => {
             console.error('Błąd podczas ładowania potraw:', error);
         });
 }
 
-// Funkcja zmieniająca status potrawy
-function changeStatus(dishId, newStatus) {
+// Funkcja do zmiany statusu potrawy
+function changeStatus(dishId, newStatus, isSearch = false) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'backend/change_status.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onload = function() {
         if (xhr.status === 200) {
-            alert('Status został zmieniony');
-            loadMenu(); // Przeładuj menu po zmianie statusu
+            const response = JSON.parse(xhr.responseText); // Parsujemy odpowiedź JSON
+
+            if (response.status === 'success') {
+                alert(response.message); // Pokazujemy komunikat o sukcesie
+
+                // Zmiana statusu na stronie
+                const button = document.querySelector(`button[data-id="${dishId}"]`);
+                const statusCell = button.parentElement.previousElementSibling; // Znajdujemy komórkę z aktualnym statusem
+                
+                // Aktualizujemy tekst statusu
+                const updatedStatus = newStatus === 'aktywna' ? 'Aktywna' : 'Nieaktywna';
+                statusCell.textContent = updatedStatus;
+
+                // Zmieniamy atrybut 'data-status' na przycisku
+                button.setAttribute('data-status', newStatus); // Zmieniamy status na przycisku
+
+                // Dodatkowo zmieniamy tekst na samym przycisku, żeby odzwierciedlał nowy status
+                button.textContent = newStatus === 'aktywna' ? 'Zmień na nieaktywną' : 'Zmień na aktywną';
+
+                // Odświeżamy wyniki po zmianie statusu
+                if (isSearch) {
+                    searchDishes(); // Odświeżamy wyniki wyszukiwania
+                } else {
+                    loadMenu(); // Odświeżamy całe menu
+                }
+            } else {
+                alert(response.message); // Jeśli błąd, wyświetlamy komunikat o błędzie
+            }
         } else {
             alert('Błąd podczas zmiany statusu');
         }
@@ -1153,11 +1143,53 @@ function changeStatus(dishId, newStatus) {
     xhr.send(`id=${dishId}&status=${newStatus}`);
 }
 
+
+// Funkcja do dynamicznego wyszukiwania potraw
+function searchDishes() {
+    const searchTerm = document.getElementById("search-term-menu").value.trim();
+    const searchCriteria = document.getElementById("search-criteria-menu").value;
+
+    // Jeśli pole wyszukiwania jest puste, załaduj wszystkie potrawy
+    if (searchTerm === "") {
+        loadMenu(); // Funkcja ładująca wszystkie potrawy
+        return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", `backend/search_dishes.php?search-term=${encodeURIComponent(searchTerm)}&search-criteria=${encodeURIComponent(searchCriteria)}`, true);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            document.getElementById("potrawy-lista").innerHTML = xhr.responseText;
+            // Dodajemy nasłuchiwacze na przyciski zmiany statusu po załadowaniu wyników wyszukiwania
+            addChangeStatusListeners();
+        }
+    };
+    xhr.send();
+}
+
+// Funkcja do dodawania nasłuchiwaczy do przycisków zmiany statusu
+function addChangeStatusListeners() {
+    console.log("Przypisuję event listenery do przycisków zmiany statusu"); // Sprawdzamy, czy funkcja się wywołuje
+    document.querySelectorAll('.change-status').forEach(button => {
+        console.log("Dodano listener do przycisku ID:", button.getAttribute('data-id')); // Sprawdzamy, czy buttony są znajdowane
+        button.addEventListener('click', function() {
+            const dishId = this.getAttribute('data-id');
+            const currentStatus = this.getAttribute('data-status');
+            const newStatus = currentStatus === 'aktywna' ? 'nieaktywna' : 'aktywna';
+            
+            changeStatus(dishId, newStatus, true);
+        });
+    });
+}
+
+
 // Uruchomienie funkcji podczas ładowania strony
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("search-term-menu").addEventListener("input", searchDishes);
+    document.getElementById("search-criteria-menu").addEventListener("change", searchDishes);
+
     loadMenu(); // Załaduj menu przy wczytaniu strony
 });
-
 
 
 //---------------------------------------- Dodawanie dania ---------------------------
